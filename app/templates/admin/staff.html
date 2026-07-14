@@ -1,0 +1,351 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}
+Manage Staff
+{% endblock %}
+
+{% block main_content %}
+
+<h1 class="text-left mt-2"> Manage Staff </h1>
+
+<div class="row row-cols-lg-4 row-cols-2 g-3 mt-4">
+
+	<div class="col">
+	
+		<a class="text-decoration-none text-reset" href="?filter=total">
+	
+			<div class="card shadow-sm">
+			
+				<div class="card-body d-flex flex-column align-items-center">
+				
+					<h6 class="text-muted">	Total Staff </h6>
+				
+					<h3>{{ total_staff|length }}</h3>
+					
+				</div>
+				
+			</div>
+			
+		</a>
+			
+	</div>
+	
+	<div class="col">
+	
+		<a class="text-decoration-none text-reset" href="?filter=active">
+	
+			<div class="card shadow-sm">
+			
+				<div class="card-body d-flex flex-column align-items-center">
+				
+					<h6 class="text-muted">	Active Staff </h6>
+				
+					<h3>{{ active_staff|length }}</h3>
+					
+				</div>
+				
+			</div>
+			
+		</a>
+		
+	</div>
+
+	<div class="col">
+		
+		<a class="text-decoration-none text-reset" href="?filter=pending">
+	
+			<div class="card shadow-sm">
+			
+				<div class="card-body d-flex flex-column align-items-center">
+				
+					<h6 class="text-muted">	Pending Staff </h6>
+				
+					<h3>{{ pending_staff|length }}</h3>
+					
+				</div>
+				
+			</div>
+			
+		</a>
+		
+	</div>
+	
+	<div class="col">
+		
+		<a class="text-decoration-none text-reset" href="?filter=inactive">
+	
+			<div class="card shadow-sm">
+			
+				<div class="card-body d-flex flex-column align-items-center">
+				
+					<h6 class="text-muted">	Blacklisted Staff </h6>
+				
+					<h3>{{ inactive_staff|length }}</h3>
+					
+				</div>
+				
+			</div>
+			
+		</a>
+		
+	</div>
+
+</div>
+
+
+<form method="GET" action="{{ url_for('admin.staff') }}">
+	<div class="row row-cols-lg-6 row-cols-md-3 row-cols-1 mt-2 g-3 align-items-end">
+	
+		<div class="col">
+			<label class="form-label text-nowrap">Staff ID</label>
+
+			<input
+				type="number"
+				class="form-control"
+				name="staff_id"
+				value="{{ request.args.get('staff_id', '') }}"
+				placeholder="ID">
+		</div>
+
+
+		<div class="col">
+			<label class="form-label text-nowrap">Staff Name</label>
+
+			<div class="input-group">
+				<span class="input-group-text">
+				    <i class="bi bi-search"></i>
+				</span>
+
+				<input
+				    type="text"
+				    class="form-control"
+				    name="staff_name"
+				    value="{{ request.args.get('staff_name', '') }}"
+				    placeholder="Search by name">
+			</div>
+		</div>
+		
+		<div class="col">
+			<label class="form-label">Email</label>
+
+			<div class="input-group">
+				<span class="input-group-text">
+				    <i class="bi bi-search"></i>
+				</span>
+
+				<input
+				    type="text"
+				    class="form-control"
+				    name="email"
+				    value="{{ request.args.get('email', '') }}"
+				    placeholder="Search by Email">
+			</div>
+		</div>
+
+		<div class="col">
+			<label class="form-label">Contact</label>
+
+			<input
+				type="tel"
+				class="form-control"
+				name="staff_contact"
+				value="{{ request.args.get('staff_contact', '') }}"
+				pattern="[0-9]{10}"
+				maxlength="10"
+				placeholder="10-digit phone no.">
+		</div>
+		
+		<div class="col">
+			<label class="form-label text-nowrap">Trek Name</label>
+
+			<input
+				type="text"
+				class="form-control"
+				name="trek_name"
+				value="{{ request.args.get('trek_name', '') }}"
+				placeholder="Trekname">
+		</div>
+
+		<div class="col">
+			<label class="form-label">Status</label>
+
+			<select class="form-select" name="status">
+				<option value="" {% if request.args.get('status', '') == '' %} selected {% endif %} >All</option>
+				<option value="active" {% if request.args.get('status', '') == 'active' %} selected {% endif %} >Active</option>
+				<option value="inactive" {% if request.args.get('status', '') == 'inactive' %} selected {% endif %} >Inactive</option>
+				<option value="pending" {% if request.args.get('status', '') == 'pending' %} selected {% endif %} >Pending</option>
+			</select>
+		</div>
+
+		<div class="col ms-auto gap-2 d-flex justify-content-end">
+
+			<button type="submit" class="btn btn-primary">
+			    Search
+			</button>
+
+			<a class="btn btn-outline-secondary" href="{{ url_for('admin.staff') }}">
+			    Reset
+			</a>
+				
+		</div>
+
+	</div>
+</form>
+
+
+<div class="card shadow-sm mt-4">
+
+	<div class="card-header d-flex justify-content-end align-items-center">
+		<span class="small text-muted">
+		    {{ staff|length }} record(s)
+		</span>
+	</div>
+
+	<div class="table-responsive">
+
+		<table class="table table-hover align-middle mb-0">
+
+		    <thead>
+		        <tr>
+		            <th class="text-nowrap">Staff ID</th>
+		            <th>Name</th>
+		            <th>Email</th>
+		            <th>Contact</th>
+		            <th class="text-nowrap">Assigned Treks</th>
+		            <th>Status</th>
+		            <th class="text-center">Action</th>
+		        </tr>
+		    </thead>
+
+		    <tbody>
+
+		        {% for s in staff %}
+
+		        <tr>
+
+		            <td>{{ s.staff_id }}</td>
+
+		            <td>{{ s.staff_name }}</td>
+		            
+		            <td>{{ s.login.email }}</td>
+
+		            <td>{{ s.staff_contact if s.staff_contact else None }}</td>
+
+		            <td>
+		            {% for trek in s.assigned_trek %}
+		            
+		            	{{ trek.trek_name }}{% if not loop.last %}, {% endif %}
+		            	
+		            {% else %}
+		            
+		            None
+		            	
+		            {% endfor %}
+		            </td>
+
+		            <td>
+		            
+		            	{% if s.status == "pending" %}
+		            	
+		            	{{ s.status }}
+		            	
+		            	{% else %}
+		            
+		            	<form class="d-flex justify-content-between" method="POST" action="{{ url_for('admin.update_staff_status', staff_id = s.staff_id) }}">
+		            	
+		            		<select class="form-select form-select-sm" name="status">
+		            		
+		            			<option value="active" {% if s.status == "active" %}selected{% endif %}>
+		            				Active
+		            			</option>
+		            			
+		            			<option value="inactive" {% if s.status == "inactive" %}selected{% endif %}>
+		            				Inactive
+		            			</option>
+		            			
+		            		</select>
+		            		
+		            		<button class="btn" title="Save Status">
+		            			<i class="bi bi-floppy"></i>
+		            		</button>
+		            		
+		            		<input type="hidden" name="next" value="{{ url_for('admin.staff') }}">
+
+						</form>
+						
+						{% endif %}
+		                
+		            </td>
+
+		            <td>
+		            
+		            	{% if s.status == "pending" %}
+		            	
+		            	<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.update_staff_status', staff_id = s.staff_id) }}">
+		            	
+		            		<input type="hidden" name="next" value="{{ url_for('admin.staff') }}">
+		            		
+		            		<button class="btn btn-success" name="action" value="approve">
+		            			Approve
+		            		</button>
+		            		
+		            		<button class="btn btn-danger" name="action" value="reject">
+		            			Reject
+		            		</button>
+						
+						</form>
+						
+						{% else %}
+						
+						<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.delete_staff', staff_id = s.staff_id) }}">
+
+		                    <button class="btn btn-sm btn-outline-danger" title="Delete">
+		                        <i class="bi bi-trash"></i>
+		                    </button>
+		                    
+		                    <input type="hidden" name="next" value="{{ url_for('admin.staff') }}">
+
+		                </form>
+		                
+		                {% endif %}
+
+		            </td>
+
+		        </tr>
+
+		        {% else %}
+
+		        <tr>
+
+		            <td colspan="12" class="text-center py-4">
+		                No staff found.
+		            </td>
+
+		        </tr>
+
+		        {% endfor %}
+
+		    </tbody>
+
+		</table>
+
+	</div>
+
+
+</div>
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+

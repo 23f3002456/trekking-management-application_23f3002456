@@ -1,0 +1,579 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block main_content %}
+
+<h1 class="text-left mt-2 mb-0"> Welcome Admin ! </h1>
+
+
+
+<div class="row row-cols-lg-4 row-cols-2 g-3 mt-4">
+
+	<!-- ########## Total Bookings ########## -->
+	<div class="col">
+		<div class="card shadow-sm">
+			<div class="card-body d-flex flex-column align-items-center">
+			
+				<h6 class="text-muted"> Total Bookings </h6>
+				
+				<h3> {{ total_bookings }} </h3>
+				
+			</div>
+		</div>
+	</div>
+	
+	<!-- ########## Total Treks ########## -->
+	<div class="col">
+		<div class="card shadow-sm">
+			<div class="card-body d-flex flex-column align-items-center">
+			
+				<h6 class="text-muted"> Total Treks </h6>
+				
+				<h3> {{ total_treks }} </h3>
+				
+			</div>
+		</div>
+	</div>
+	
+	<!-- ########## Total Users ########## -->
+	<div class="col">
+		<div class="card shadow-sm">
+			<div class="card-body d-flex flex-column align-items-center">
+			
+				<h6 class="text-muted"> Total Users </h6>
+				
+				<h3> {{ total_users }} </h3>
+				
+			</div>
+		</div>
+	</div>
+	
+	<!-- ########## Total Staff ########## -->
+	<div class="col">
+		<div class="card shadow-sm">
+			<div class="card-body d-flex flex-column align-items-center">
+			
+				<h6 class="text-muted"> Total Staff </h6>
+				
+				<h3> {{ total_staff }} </h3>
+				
+			</div>
+		</div>
+	</div>
+	
+</div>
+
+
+
+<div class="row row-cols-lg-2 row-cols-1 g-3 mt-5">
+
+	<!-- ########## Recent Bookings ########## -->
+	<div class="col">
+		<div class="card">
+		
+			<div class="card-header">
+				<h6 class="text-muted mb-0"> Recent Bookings </h6>
+			</div>
+		
+			<div class="card-body table-responsive">
+				<table class="table table-hover">
+				
+					<thead>
+						<tr>
+						
+							<th class="text-nowrap"> Booking ID </th>
+							<th> User </th>
+							<th> Trek </th>
+							<th> Status </th>
+							<th class="text-nowrap"> Booking Date </th>
+							
+						</tr>
+					</thead>
+					
+					<tbody>
+					
+						{% if recent_bookings %}
+						
+							{% for booking in recent_bookings %}
+							<tr>
+							
+								<td>{{ booking.booking_id }}</td>
+								<td>{{ booking.user.username }}</td>
+								<td>{{ booking.trek.trek_name }}</td>
+								<td>
+								
+									<span class="badge
+
+										{% if booking.status == "booked" %} text-bg-success
+
+										{% elif booking.status == "cancelled" %} text-bg-danger
+
+										{% elif booking.status == "completed" %} text-bg-primary
+
+										{% endif %}
+										
+									">
+										
+										{{ booking.status.title() }}
+										
+									</span>
+									
+								</td>
+								
+								<td>{{ booking.booking_date.strftime("%d %B %Y, %I:%M %p") }}</td>
+								
+							</tr>
+							{% endfor %}
+							
+						{% else %}
+						<tr> 
+						
+							<td colspan="5" class="text-center">No Bookings yet </td>
+							
+						</tr>
+						{% endif %}
+						
+					</tbody>
+					
+				</table>
+			</div>
+			
+			<div class="card-footer d-flex justify-content-end">
+			
+				<a class="btn btn-primary" href="{{ url_for('admin.bookings') }}"> View All </a>
+				
+			</div>
+
+		</div>
+	</div>
+
+	<!-- ########## Recent Staff Registrations ########## -->
+	<div class="col">
+		<div class="card">
+		
+			<div class="card-header">
+				<h6 class="text-muted mb-0"> Recent Staff Registrations </h6>
+			</div>
+
+			<div class="card-body table-responsive">
+				<table class="table table-hover">
+				
+					<thead>
+						<tr>
+						
+							<th class="text-nowrap"> Staff ID </th>
+							<th> Name </th>
+							<th> Contact </th>
+							<th> Status </th>
+							<th class="text-center"> Action </th>
+							
+						</tr>
+					</thead>
+					
+					<tbody>
+					
+						{% if recent_staff %}
+						
+							{% for staff in recent_staff %}
+							<tr>
+							
+								<td>{{ staff.staff_id }}</td>
+								<td>{{ staff.staff_name }}</td>
+								<td>{{ staff.staff_contact if staff.staff_contact else "None" }}</td>
+								<td>
+								
+									{% if staff.status == "pending" %}
+									
+									{{ staff.status }}
+									
+									{% else %}
+									
+									<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.update_staff_status', staff_id=staff.staff_id) }}">
+									
+										<select name="status" class="form-select form-select-sm">
+										
+											<option value="active"
+											{% if staff.status == "active" %}selected{% endif %} >
+												Active 
+											</option>
+											
+											<option value="inactive"
+											{% if staff.status == "inactive" %}selected{% endif %} >
+												Inactive 
+											</option>
+											
+										</select>
+										
+										<button class="btn"> <i class="bi bi-floppy"></i> </button>
+										
+										<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+										
+									</form>
+									
+									{% endif %}
+									
+								</td>
+								
+								<td>
+								
+									{% if staff.status == "pending" %}
+									
+									<form class="d-flex justify-content-center gap-2" method="POST" action="{{ url_for('admin.update_staff_status', staff_id=staff.staff_id) }}">
+									
+										<button class="btn btn-sm btn-success" name="action" value="approve">
+											Approve
+										</button>
+										
+										<button class="btn btn-sm btn-danger" name="action" value="reject">
+											Reject
+										</button>
+										
+										<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+									
+									</form>
+									
+									{% else %}
+									
+									<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.delete_staff', staff_id = staff.staff_id) }}">
+									
+										<button class="btn btn-sm btn-danger">
+											<i class="bi bi-trash"></i> 
+										</button>
+										
+										<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+									
+									</form>
+									
+									{% endif %}
+									
+								</td>
+								
+							</tr>
+							{% endfor %}
+							
+						{% else %}
+						<tr> 
+						
+							<td colspan="5" class="text-center">No Staff Available </td>
+							
+						</tr>
+						{% endif %}
+						
+					</tbody>
+					
+				</table>
+			</div>
+			
+			<div class="card-footer d-flex justify-content-end">
+			
+				<a class="btn btn-primary" href="{{ url_for('admin.staff') }}"> View All </a>
+				
+			</div>
+			
+		</div>
+	</div>
+
+	<!-- ########## Recent Treks ########## -->
+	<div class="col">
+		<div class="card">
+
+			<div class="card-header">
+				<h6 class="text-muted mb-0"> Recent Treks </h6>
+			</div>
+
+			<div class="card-body table-responsive">
+				<table class="table table-hover">
+				
+					<thead>
+						<tr>
+						
+							<th class="text-nowrap"> Trek Name </th>
+							<th> Location </th>
+							<th> Staff </th>
+							<th> Slots </th>
+							<th class="text-nowrap"> Start Date </th>
+							<th class="text-nowrap"> End Date </th>
+							<th> Status </th>
+							<th class="text-center"> Action </th>
+							
+						</tr>
+					</thead>
+					
+					<tbody>
+					
+						{% if recent_treks %}
+						
+							{% for trek in recent_treks %}
+							<tr>
+							
+								<td>{{ trek.trek_name }}</td>
+								<td>{{ trek.trek_location }}</td>
+								<td>
+								
+									{% if trek.assigned_staff.staff_name %}
+									
+									{{ trek.assigned_staff.staff_name }}
+									
+									{% else %}
+									
+									None
+									
+									{% endif %}
+								
+								</td>
+								<td>{{ trek.available_slots }}</td>
+								<td>{{ trek.start_date.strftime("%d %B %Y") }}</td>
+								<td>{{ trek.end_date.strftime("%d %B %Y") }}</td>
+								<td>
+								
+									{% if trek.status == "pending" %}
+									
+									{{ trek.status }}
+									
+									{% elif trek.status == "approved" %}
+									
+									<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.update_trek_status', trek_id=trek.trek_id) }}">
+									
+										<select name="status" class="form-select form-select-sm">
+										
+											<option value="approved"
+											{% if trek.status == "approved" %}selected{% endif %} >
+												Approved 
+											</option>
+											
+											<option value="open"
+											{% if trek.status == "open" %}selected{% endif %} >
+												Open 
+											</option>
+											
+										</select>
+										
+										<button class="btn"> <i class="bi bi-floppy"></i> </button>
+										
+										<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+										
+									</form>
+									
+									{% elif trek.status == "open" %}
+									
+									<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.update_trek_status', trek_id=trek.trek_id) }}">
+									
+										<select name="status" class="form-select form-select-sm">
+											
+											<option value="open"
+											{% if trek.status == "open" %}selected{% endif %} >
+												Open 
+											</option>
+											
+											
+											<option value="closed"
+											{% if trek.status == "closed" %}selected{% endif %} >
+												Close 
+											</option>
+											
+										</select>
+										
+										<button class="btn"> <i class="bi bi-floppy"></i> </button>
+										
+										<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+										
+									</form>
+									
+									{% else %}
+									
+									{{ trek.status }}
+									
+									{% endif %}
+									
+								</td>
+								<td>
+								
+									{% if trek.status == "pending" %}
+									
+									<form method="POST" action="{{ url_for('admin.update_trek_status', trek_id=trek.trek_id) }}">
+									
+										<button class="btn btn-sm btn-success" name="action" value="approve">
+											Approve
+										</button>
+										
+										<button class="btn btn-sm btn-danger" name="action" value="reject">
+											Reject
+										</button>
+										
+										<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+									
+									</form>
+									
+									{% else %}
+									
+									<div class="d-flex justify-content-center gap-2">
+										<form method="POST" action="{{ url_for('admin.delete_trek', trek_id=trek.trek_id) }}">
+										
+											<button
+												class="btn btn-sm btn-danger" 
+												{% if trek.status in ['started','completed','open','closed'] %}disabled{% endif %}>
+												
+												<i class="bi bi-trash"></i>
+
+											</button>
+											
+											<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+										
+										</form>
+										
+										<form method="GET" action="{{ url_for('admin.edit_trek', trek_id=trek.trek_id) }}">
+										
+											<button 
+												class="btn btn-sm btn-outline-secondary"
+												{% if trek.status == "completed" %} disabled {% endif %}>
+												
+												<i class="bi bi-pencil"></i>
+
+											</button>
+											
+											<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+										
+										</form>
+									</div>
+									
+									{% endif %}
+									
+								</td>
+								
+							</tr>
+							{% endfor %}
+							
+						{% else %}
+						
+						<tr> 
+						
+							<td colspan="7" class="text-center">No treks available </td>
+							
+						</tr>
+						
+						{% endif %}
+						
+					</tbody>
+					
+				</table>
+			</div>
+			
+			<div class="card-footer d-flex justify-content-end gap-2">
+			
+				<a class="btn btn-primary" href="{{ url_for('admin.add_trek', previous=url_for('admin.dashboard') ) }}"> Add Trek </a>
+				
+				<a class="btn btn-primary" href="{{ url_for('admin.treks') }}"> View All </a>
+				
+			</div>
+
+		</div>
+	</div>
+
+	<!-- ########## Recent User Registrations ########## -->
+	<div class="col">
+		<div class="card">
+
+			<div class="card-header">
+				<h6 class="text-muted mb-0"> Recent User Registrations </h6>
+			</div>
+
+			<div class="card-body table-responsive">
+				<table class="table table-hover">
+				
+					<thead>
+						<tr>
+						
+							<th class="text-nowrap"> User ID </th>
+							<th> Name </th>
+							<th> Contact </th>
+							<th> Status </th>
+							<th class="text-center"> Action </th>
+							
+						</tr>
+					</thead>
+					
+					<tbody>
+					
+						{% if recent_users %}
+						
+							{% for user in recent_users %}
+							<tr>
+							
+								<td>{{ user.user_id }}</td>
+								<td>{{ user.username }}</td>
+								<td>{{ user.user_contact if user.user_contact else None }}</td>
+								<td>
+									
+									<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.update_user_status', user_id = user.user_id) }}">
+									
+										<select name="status" class="form-select form-select-sm">
+										
+											<option value="active"
+											{% if user.status == "active" %}selected{% endif %} >
+												Active 
+											</option>
+											
+											<option value="inactive"
+											{% if user.status == "inactive" %}selected{% endif %} >
+												Inactive 
+											</option>
+											
+										</select>
+										
+										<button class="btn"> <i class="bi bi-floppy"></i> </button>
+										
+										<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+										
+									</form>
+									
+								</td>
+								<td>
+								
+									<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.delete_user', user_id = user.user_id) }}">
+									
+										<button class="btn btn-sm btn-danger">
+											<i class="bi bi-trash"></i> 
+										</button>
+										
+										<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+									
+									</form>
+									
+								</td>
+								
+							</tr>
+							{% endfor %}
+							
+						{% else %}
+						
+						<tr>
+						 
+							<td colspan="5" class="text-center">No Users Available </td>
+						
+						</tr>
+						
+						{% endif %}
+					
+					</tbody>
+					
+				</table>
+			</div>
+			
+			<div class="card-footer d-flex justify-content-end">
+			
+				<a class="btn btn-primary" href="{{ url_for('admin.users') }}"> View All </a>
+				
+			</div>
+
+		</div>
+	</div>
+
+</div>
+
+{% endblock %}
+
+
+	

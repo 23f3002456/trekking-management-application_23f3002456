@@ -1,0 +1,275 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}
+Manage Users
+{% endblock %}
+
+{% block main_content %}
+
+<h1 class="dashboard-header text-left mt-2"> Manage Users </h1>
+
+<div class="row row-cols-md-3 row-cols-2 g-3 mt-4">
+
+	<div class="col">
+	
+		<a class="text-decoration-none text-reset" href="?filter=total">
+	
+			<div class="card shadow-sm">
+			
+				<div class="card-body d-flex flex-column align-items-center">
+				
+					<h6 class="text-muted"> Total Users </h6>
+
+					<h3> {{ total_users|length }} </h3>
+					
+				</div>
+				
+			</div>
+			
+		</a>
+			
+	</div>
+	
+	<div class="col">
+	
+		<a class="text-decoration-none text-reset" href="?filter=active">
+	
+			<div class="card shadow-sm">
+			
+				<div class="card-body d-flex flex-column align-items-center">
+				
+					<h6 class="text-muted"> Active Users </h6>
+
+					<h3> {{ active_users|length }} </h3>
+					
+				</div>
+				
+			</div>
+			
+		</a>
+		
+	</div>
+	
+	<div class="col">
+		
+		<a class="text-decoration-none text-reset" href="?filter=inactive">
+	
+			<div class="card shadow-sm">
+			
+				<div class="card-body d-flex flex-column align-items-center">
+				
+					<h6 class="text-muted"> Blacklisted Users </h6>
+
+					<h3> {{ inactive_users|length }} </h3>
+					
+				</div>
+				
+			</div>
+			
+		</a>
+		
+	</div>
+
+</div>
+
+
+<form method="GET" action="{{ url_for('admin.users') }}">
+	<div class="row row-cols-lg-6 row-cols-md-3 row-cols-1 mt-2 g-3 align-items-end">
+	
+		<div class="col-lg-2">
+			<label class="form-label">User ID</label>
+
+			<input
+				type="number"
+				class="form-control"
+				name="user_id"
+				value="{{ request.args.get('user_id', '') }}"
+				placeholder="ID">
+		</div>
+
+
+		<div class="col-lg-2">
+			<label class="form-label">User Name</label>
+
+			<div class="input-group">
+				<span class="input-group-text">
+				    <i class="bi bi-search"></i>
+				</span>
+
+				<input
+				    type="text"
+				    class="form-control"
+				    name="username"
+				    value="{{ request.args.get('username', '') }}"
+				    placeholder="Search by name">
+			</div>
+		</div>
+		
+		<div class="col-lg-2">
+			<label class="form-label">Email</label>
+
+			<div class="input-group">
+				<span class="input-group-text">
+				    <i class="bi bi-search"></i>
+				</span>
+
+				<input
+				    type="text"
+				    class="form-control"
+				    name="email"
+				    value="{{ request.args.get('email', '') }}"
+				    placeholder="Search by email">
+			</div>
+		</div>
+
+		<div class="col-lg-2">
+			<label class="form-label">Contact</label>
+
+			<input
+				type="tel"
+				class="form-control"
+				name="user_contact"
+				value="{{ request.args.get('user_contact', '') }}"
+				maxlength="10"
+				pattern="[0-9]{10}"
+				placeholder="Enter 10-digit phone no.">
+		</div>
+
+		<div class="col-lg-2">
+			<label class="form-label">Status</label>
+
+			<select class="form-select" name="status">
+				<option value="" {% if request.args.get('status', '') == '' %} selected {% endif %} >All</option>
+				<option value="active" {% if request.args.get('status', '') == 'active' %} selected {% endif %} >Active</option>
+				<option value="inactive" {% if request.args.get('status', '') == 'inactive' %} selected {% endif %} >Inactive</option>
+			</select>
+		</div>
+
+		<div class="col-lg-2">
+			<div class="ms-auto d-flex gap-2 justify-content-end">
+
+				<button type="submit" class="btn btn-primary">
+				    Search
+				</button>
+
+				<a class="btn btn-outline-secondary" href="{{ url_for('admin.users') }}">
+				    Reset
+				</a>
+
+			</div>
+		</div>
+
+	</div>
+</form>
+
+
+<div class="card shadow-sm mt-4">
+
+	<div class="card-header d-flex justify-content-end align-items-center">
+		<span class="small text-muted">
+		    {{ users|length }} record(s)
+		</span>
+	</div>
+
+<div class="table-responsive">
+	<table class="table table-hover">
+	
+		<thead>
+			<tr>
+			
+				<th class="text-nowrap"> User ID </th>
+				<th> Name </th>
+				<th> Email </th>
+				<th> Contact </th>
+				<th> Status </th>
+				<th class="text-center"> Action </th>
+				
+			</tr>
+		</thead>
+		
+		<tbody>
+		
+			{% if users %}
+			
+				{% for user in users %}
+				<tr>
+				
+					<td>{{ user.user_id }}</td>
+					<td>{{ user.username }}</td>
+					<td>{{ user.login.email }}</td>
+					<td>{{ user.user_contact }}</td>
+					<td>
+						
+						<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.update_user_status', user_id = user.user_id) }}">
+						
+							<select name="status" class="form-select form-select-sm">
+							
+								<option value="active"
+								{% if user.status == "active" %}selected{% endif %} >
+									Active 
+								</option>
+								
+								<option value="inactive"
+								{% if user.status == "inactive" %}selected{% endif %} >
+									Inactive 
+								</option>
+								
+							</select>
+							
+							<button class="btn"> <i class="bi bi-floppy"></i> </button>
+							
+							<input type="hidden" name="next" value="{{ url_for('admin.users') }}">
+							
+						</form>
+						
+					</td>
+					<td>
+					
+						<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.delete_user', user_id = user.user_id) }}">
+						
+							<button class="btn btn-danger">
+								<i class="bi bi-trash"></i> 
+							</button>
+							
+							<input type="hidden" name="next" value="{{ url_for('admin.dashboard') }}">
+						
+						</form>
+						
+					</td>
+					
+				</tr>
+				{% endfor %}
+				
+			{% else %}
+			
+			<tr>
+			 
+				<td colspan="12" class="text-center">No Users Available </td>
+			
+			</tr>
+			
+			{% endif %}
+		
+		</tbody>
+		
+	</table>
+</div>
+
+
+</div>
+
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
