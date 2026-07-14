@@ -1,0 +1,276 @@
+{% extends 'user/user_base.html' %}
+
+{% block title %}
+
+Explore Treks
+
+{% endblock %}
+
+{% block main_content %}
+
+<div class="card shadow-sm mt-4">
+
+	<div class="card-header">
+
+		<h4 class="mb-0"> Explore Treks </h4>
+
+	</div>
+
+	<div class="card-body">
+
+		<form method="GET">
+
+		    <div class="row row-cols-lg-5 row-cols-md-3 row-cols-1 g-3 align-items-end">
+
+		        <div class="col">
+		        
+		        	<label class="form-label"> Trek Name </label>
+		        
+				    <div class="input-group">
+				    	
+				    	<span class="input-group-text">
+				    		<i class="bi bi-search"></i>
+				    	</span>
+
+				        <input
+				            type="text"
+				            name="trek_name"
+				            class="form-control"
+				            placeholder="Search Trek"
+				            value="{{ request.args.get('trek_name','') }}">
+				            
+					</div>
+
+		        </div>
+
+
+				<div class="col">
+				
+					<label class="form-label"> Location </label>
+
+					<div class="input-group">
+
+						<span class="input-group-text">
+							<i class="bi bi-geo-alt-fill"></i>
+						</span>
+
+						<input
+							type="text"
+							class="form-control"
+							name="location"
+							value="{{ request.args.get('location', '') }}"
+							placeholder="Search by location">
+
+					</div>
+					
+				</div>
+
+		        <div class="col">
+
+					<label class="form-label"> Difficulty </label>
+					
+					<div class="input-group">
+						
+						<span class="input-group-text">
+							<i class="bi bi-speedometer2"></i>
+						</span>
+
+				        <select name="difficulty" class="form-select">
+
+				            <option value="" {% if request.args.get('difficulty', '') == "" %} selected {% endif %}>
+				            	All Difficulties
+				            </option>
+
+				            <option value="easy" {% if request.args.get('difficulty', '') == "easy" %} selected {% endif %}>
+				            	Easy
+				            </option>
+
+				            <option value="moderate" {% if request.args.get('difficulty', '') == "moderate" %} selected {% endif %}>
+				            	Moderate
+				            </option>
+
+				            <option value="hard" {% if request.args.get('difficulty', '') == "hard" %} selected {% endif %}v>
+				            	Hard
+				            </option>
+
+				        </select>
+				        
+				    </div>
+
+		        </div>
+		        
+		        <div class="col">
+				
+					<label class="form-label"> Start Date </label>
+
+					<div class="input-group">
+
+						<span class="input-group-text">
+							<i class="bi bi-calendar-event"></i>
+						</span>
+
+						<input
+							type="date"
+							class="form-control"
+							name="start_date"
+							value="{{ request.args.get('start_date', '') }}"
+							placeholder="Select Starting Date">
+
+					</div>
+					
+				</div>
+				
+				<div class="col">
+				
+					<label class="form-label"> End Date </label>
+
+					<div class="input-group">
+
+						<span class="input-group-text">
+							<i class="bi bi-calendar-check"></i>
+						</span>
+
+						<input
+							type="date"
+							class="form-control"
+							name="end_date"
+							value="{{ request.args.get('end_date', '') }}"
+							placeholder="Select Ending Date">
+
+					</div>
+					
+				</div>
+
+		        <div class="ms-auto col d-flex gap-2 justify-content-end">
+
+		            <button type="submit" class="btn btn-outline-primary">
+		                Search
+		            </button>
+		            
+		            <a class="btn btn-secondary" href="{{ url_for('user.treks') }}">
+		            	Reset
+		            </a>
+
+		        </div>
+
+		    </div>
+
+		</form>
+
+
+		<div class="table-responsive mt-2">
+
+		    <table class="table table-hover align-middle">
+
+		        <thead>
+
+		            <tr>
+
+		                <th class="text-nowrap"> Trek Name </th>
+
+		                <th> Location </th>
+
+		                <th> Difficulty </th>
+
+		                <th> Duration </th>
+
+		                <th class="text-nowrap"> Start Date </th>
+		                
+		                <th class="text-nowrap"> End Date </th>
+
+		                <th> Slots </th>
+
+		                <th class="text-center"> Action </th>
+
+		            </tr>
+
+		        </thead>
+
+		        <tbody>
+
+		            {% for trek in treks %}
+
+		            <tr>
+
+		                <td> {{ trek.trek_name }} </td>
+
+		                <td> {{ trek.trek_location }} </td>
+
+		                <td>
+		                    <span class="badge
+
+		                        {% if trek.difficulty == 'easy' %}
+		                            text-bg-success
+
+		                        {% elif trek.difficulty == 'moderate' %}
+		                            text-bg-warning
+
+		                        {% else %}
+		                            text-bg-danger
+
+		                        {% endif %}
+		                        
+		                    ">
+
+		                        {{ trek.difficulty.title() }}
+
+		                    </span>
+
+		                </td>
+
+		                <td> {{ trek.duration }} Days </td>
+
+		                <td> {{ trek.start_date }} </td>
+
+		                <td> {{ trek.end_date }} </td>
+
+		                <td> {{ trek.available_slots }} </td>
+
+						<td>
+                        
+                        	<form class="d-flex justify-content-center" method="GET" action="{{ url_for('user.book_trek', trek_id=trek.trek_id) }}">
+                        	
+                        		<input type="hidden" name="next" value="{{ url_for('user.treks') }}">
+                        		
+                        		<button class="btn btn-sm btn-primary">
+                        			
+                        			<span class="text-nowrap">
+                        				Book Now
+                        			</span>
+                        			
+                        		</button>
+                        		
+                        	</form>
+                        
+                        </td>
+
+		            </tr>
+
+		            {% else %}
+
+		            <tr>
+		            
+		                <td colspan="8" class="text-center text-muted">
+
+		                    No treks found.
+
+		                </td>
+
+		            </tr>
+
+		            {% endfor %}
+
+		        </tbody>
+
+		    </table>
+
+		</div>
+
+	</div>
+
+</div>
+
+{% endblock %}
+
+
+
