@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384
+	sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+	
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+	
+	<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+	
+	<title>
+		{% block title %}
+		TREKO
+		{% endblock %}
+	</title>
+	
+</head>
+<body>
+
+	<nav class="navbar navbar-expand-lg ps-2 pe-2 border-bottom shadow-sm bg-body-tertiary">
+		<div class="container-fluid">
+			<a class="navbar-brand" href="/">
+				<span>TREKO</span>
+				<span class="d-none d-lg-inline"> - Your Trekking Buddy</span>
+			</a>
+			<div class="ms-auto">
+				{% if current_user.is_authenticated %}
+					<a class="btn btn-danger auth-btn" href="{{url_for('auth.logout')}}">Logout</a>
+				{% else %}
+					<a class="btn btn-outline-primary auth-btn me-2" href="{{url_for('auth.login')}}">Login</a>
+					<a class="btn btn-outline-secondary auth-btn" href="{{url_for('auth.register')}}">Register</a>
+				{% endif %}
+			</div>
+		</div>
+	</nav>
+	
+	<div class="row">
+	
+		{% with messages = get_flashed_messages(with_categories=true) %}
+					
+			{% if messages %}
+			
+				{% for category, message in messages %}
+				
+					<div class="alert alert-{{ category }} alert-dismissable fade show mt-3" role="alert">
+					
+						<h6>{{ message }}</h6>
+						
+						<button class="btn-close" type="button" data-bs-dismiss="alert"></button>
+						
+					</div>
+				
+				{% endfor %}
+				
+			{% endif %}
+			
+		{% endwith %}
+	
+	</div>
+	
+	{% block body_middle %}
+
+	{% endblock %}
+	
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>
+
