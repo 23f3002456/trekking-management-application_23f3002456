@@ -14,7 +14,7 @@ Participants
     <h2> Participants - {{ trek.trek_name }} </h2>
 
 
-    <a href="{{ url_for('staff.dashboard') }}" class="btn btn-outline-secondary">
+    <a href="{{ next_page }}" class="btn btn-outline-secondary">
     
         <i class="bi bi-arrow-left me-1"></i>
         
@@ -160,11 +160,13 @@ Participants
                         Search
                     </button>
                     
-                    <a class="btn btn-outline-secondary" href="{{ url_for('staff.participants', trek_id=trek.trek_id) }}">
+                    <a class="btn btn-outline-secondary" href="{{ url_for('staff.participants', trek_id=trek.trek_id, next=next_page) }}">
                 		Reset
                 	</a>
 
                 </div>
+                
+                <input type="hidden" name="next" value="{{ next_page }}">
 
             </div>
 

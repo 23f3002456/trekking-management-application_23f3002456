@@ -99,7 +99,18 @@ def manage_trek(trek_id):
 
 		trek.available_slots = request.form.get("available_slots")
 
-		trek.status = request.form.get("status")
+		status = request.form.get('status')
+		
+		if status == "completed":
+			bookings = Booking.query.filter_by(
+				trek_id = trek.trek_id,
+				status = "booked"
+			).all()
+			
+			for booking in bookings:
+				booking.status = "completed"
+		
+		trek.status = status
 
 		db.session.commit()
 
@@ -112,6 +123,23 @@ def manage_trek(trek_id):
 	return render_template(
 		"staff/manage_trek.html",
 		trek=trek,
+		next_page=next_page
+	)
+	
+	
+@staff.route('/assigned_treks', methods=['GET', 'POST'])
+@login_required
+def assigned_treks():
+
+	staff = Staff.query.filter_by(login_id=current_user.login_id).first()
+
+	treks = Trek.query.filter_by(assigned_staff_id=staff.staff_id).all()
+	
+	next_page = request.args.get('next')
+
+	return render_template(
+		"staff/assigned_trek.html",
+		treks=treks,
 		next_page=next_page
 	)
 

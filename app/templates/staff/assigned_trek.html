@@ -1,0 +1,153 @@
+{% extends "staff/staff_base.html" %}
+
+{% block title %}
+Assigned Treks
+{% endblock %}
+
+
+{% block main_content %}
+
+<div class="row d-flex">
+
+	<div class="card shadow-sm">
+
+		<div class="card-header d-flex">
+
+		    <h2 class="mb-0"> Assigned Treks </h2>
+		    
+		    <div class="text-muted ms-auto"> {{ treks|length }} record(s) </div>
+
+		</div>
+
+		<div class="card-body table-responsive">
+
+		    <table class="table table-hover align-middle">
+
+		        <thead>
+
+		            <tr>
+						
+						<th class="text-nowrap"> Trek ID </th>
+						
+		                <th class="text-nowrap"> Trek Name </th>
+		                
+		                <th> Location </th>
+		                
+		                <th class="text-nowrap"> Start Date </th>
+
+						<th class="text-nowrap"> End Date </th>
+
+		                <th scope="col"> Slots </th>
+
+		                <th scope="col"> Participants </th>
+
+		                <th scope="col"> Status </th>
+
+		                <th scope="col" class="text-center"> Action </th>
+
+		            </tr>
+
+		        </thead>
+
+		        <tbody>
+		        
+		        	{% for trek in treks %}
+
+		            <tr>
+		            
+		            	<td> {{ trek.trek_id }} </td>
+
+		                <td> {{ trek.trek_name }} </td>
+
+		                <td> {{ trek.trek_location }} </td>
+		                
+		                <td class="text-nowrap"> {{ trek.start_date.strftime("%d %B %Y") }} </td>
+		                
+		                <td class="text-nowrap"> {{ trek.end_date.strftime("%d %B %Y") }} </td>
+		                
+		                <td> {{ trek.available_slots }} </td>
+		                
+		                <td> {{ trek.bookings.count() }} </td>
+
+		                <td>
+
+							<span class="badge
+
+								{% if trek.status == "approved" %}
+
+								text-bg-info
+
+								{% elif trek.status == "open" %}
+
+								text-bg-success
+
+								{% elif trek.status == "closed" %}
+
+								text-bg-danger
+
+								{% elif trek.status == "started" %}
+
+								text-bg-primary
+
+								{% elif trek.status == "completed" %}
+
+								text-bg-secondary
+
+								{% endif %}
+
+							">
+
+								{{ trek.status|title }}
+
+							</span>
+
+		                </td>
+
+		                <td>
+		                
+		                    <div class="d-flex justify-content-center gap-2">
+		                    
+				                <form method="GET" action="{{ url_for('staff.manage_trek', trek_id=trek.trek_id) }}">
+									
+				                    <button class="btn btn-sm btn-outline-primary">
+				                    	Edit
+				                    </button>
+				                    
+				                    <input type="hidden" name="next" value="{{ url_for('staff.assigned_treks') }}">
+				                    
+				                </form>
+				                
+				                <form method="GET" action="{{ url_for('staff.participants', trek_id=trek.trek_id) }}">
+				                    
+				                    <button class="btn btn-sm btn-primary">
+				                    	View
+				                    </button>
+				                    
+				                    <input type="hidden" name="next" value="{{ url_for('staff.assigned_treks') }}">
+				                    
+								</form>
+							
+							</div>
+
+		                </td>
+
+		            </tr>
+		            
+		            {% else %}
+		            
+		            <tr>
+		            	<td colspan="9" class="text-center"> No Trek Found. </td>
+		            
+		            {% endfor %}
+
+		        </tbody>
+
+		    </table>
+
+		</div>
+
+	</div>
+
+</div>
+
+{% endblock %}
