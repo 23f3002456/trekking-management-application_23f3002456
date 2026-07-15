@@ -74,16 +74,8 @@ def register():
 @auth.route('/login', methods=['GET','POST'])
 def login():
 
-	next_page, msg, msg_type = validate_login(current_user)
-	
-	if next_page:
-		if msg:
-			flash(msg, msg_type)
-			
-		return redirect(next_page)
-
 	if request.method == 'GET':
-				
+	
 		return render_template('auth/login.html')
 
 	if request.method == 'POST':
@@ -150,7 +142,13 @@ def validate_login(current_user):
 				msg_type = "success"
 				return url_for('staff.dashboard'), msg, msg_type
 				
-		elif current_user.role == 'trekker':
+			else:
+				msg = "Wait for Admin Approval!"
+				msg_type = "danger"
+				logout_user()
+				return url_for('auth.login'), msg, msg_type
+				
+		else:
 		
 			user = User.query.filter_by(login_id=login_id).first()
 			if user.status == "inactive":
@@ -159,7 +157,7 @@ def validate_login(current_user):
 				logout_user()
 				return url_for('auth.login'), msg, msg_type
 				
-			elif user.status == "active":
+			else:
 				msg = "Login Successful!"
 				msg_type = "success"
 				return url_for('user.dashboard'), msg, msg_type
