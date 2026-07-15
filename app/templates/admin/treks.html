@@ -291,16 +291,16 @@ Manage Treks
 
 		    <thead>
 		        <tr>
-		            <th scope="col">ID</th>
-		            <th scope="col">Name</th>
-		            <th scope="col">Location</th>
-		            <th scope="col">Difficulty</th>
-		            <th scope="col">Available Slots</th>
-		            <th scope="col">Assigned Staff</th>
-		            <th scope="col">Start Date</th>
-		            <th scope="col">End Date</th>
-		            <th scope="col">Status</th>
-		            <th scope="col" class="text-center">Action</th>
+		            <th>ID</th>
+		            <th>Name</th>
+		            <th>Location</th>
+		            <th>Difficulty</th>
+		            <th class="text-nowrap">Available Slots</th>
+		            <th class="text-nowrap">Assigned Staff</th>
+		            <th class="text-nowrap">Start Date</th>
+		            <th class="text-nowrap">End Date</th>
+		            <th>Status</th>
+		            <th class="text-center">Action</th>
 		        </tr>
 		    </thead>
 
@@ -327,70 +327,125 @@ Manage Treks
 		            <td>{{ trek.end_date }}</td>
 
 		            <td>
+								
+						{% if trek.status == "pending" %}
 						
-						<span class="badge
+						{{ trek.status }}
+						
+						{% elif trek.status == "approved" %}
+						
+						<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.update_trek_status', trek_id=trek.trek_id) }}">
+						
+							<select name="status" class="form-select form-select-sm">
+							
+								<option value="approved"
+								{% if trek.status == "approved" %}selected{% endif %} >
+									Approved 
+								</option>
+								
+								<option value="open"
+								{% if trek.status == "open" %}selected{% endif %} >
+									Open 
+								</option>
+								
+							</select>
+							
+							<button class="btn"> <i class="bi bi-floppy"></i> </button>
+							
+							<input type="hidden" name="next" value="{{ url_for('admin.treks') }}">
+							
+						</form>
+						
+						{% elif trek.status == "open" %}
+						
+						<form class="d-flex justify-content-center" method="POST" action="{{ url_for('admin.update_trek_status', trek_id=trek.trek_id) }}">
+						
+							<select name="status" class="form-select form-select-sm">
+								
+								<option value="open"
+								{% if trek.status == "open" %}selected{% endif %} >
+									Open 
+								</option>
+								
+								
+								<option value="closed"
+								{% if trek.status == "closed" %}selected{% endif %} >
+									Close 
+								</option>
+								
+							</select>
+							
+							<button class="btn"> <i class="bi bi-floppy"></i> </button>
+							
+							<input type="hidden" name="next" value="{{ url_for('admin.treks') }}">
+							
+						</form>
+						
+						{% else %}
+						
+						{{ trek.status.title() }}
+						
+						{% endif %}
+						
+					</td>
+					
+					<td>
+					
+						{% if trek.status == "pending" %}
+						
+						<form method="POST" action="{{ url_for('admin.update_trek_status', trek_id=trek.trek_id) }}">
+						
+							<div class="d-flex justify-content-center gap-2">
+										
+								<button class="btn btn-sm btn-success" name="action" value="approve">
+									Approve
+								</button>
+								
+								<button class="btn btn-sm btn-danger" name="action" value="reject">
+									Reject
+								</button>
+								
+								<input type="hidden" name="next" value="{{ url_for('admin.treks') }}">
+								
+							</div>
+						
+						</form>
+						
+						{% else %}
+						
+						<div class="d-flex justify-content-center gap-2">
+							<form method="POST" action="{{ url_for('admin.delete_trek', trek_id=trek.trek_id) }}">
+							
+								<button
+									class="btn btn-sm btn-danger" 
+									{% if trek.status in ['started','completed','open','closed'] %}disabled{% endif %}>
+									
+									<i class="bi bi-trash"></i>
 
-							{% if trek.status == 'pending' %}
+								</button>
+								
+								<input type="hidden" name="next" value="{{ url_for('admin.treks') }}">
+							
+							</form>
+							
+							<form method="GET" action="{{ url_for('admin.edit_trek', trek_id=trek.trek_id) }}">
+							
+								<button 
+									class="btn btn-sm btn-outline-secondary"
+									{% if trek.status == "completed" %} disabled {% endif %}>
+									
+									<i class="bi bi-pencil"></i>
 
-								text-bg-warning
-
-							{% elif trek.status == 'approved' %}
-
-								text-bg-primary
-
-							{% elif trek.status == 'open' %}
-
-								text-bg-success
-
-							{% elif trek.status == 'closed' %}
-
-								text-bg-danger
-
-							{% elif trek.status == 'completed' %}
-
-								text-bg-secondary
-
-							{% endif %}
-
-						">
-
-							{{ trek.status.title() }}
-
-						</span>
-		                
-		            </td>
-
-		            <td>
-
-		                <div class="d-flex justify-content-center gap-2">
-		                
-		                	<form method="GET" action="{{ url_for('admin.edit_trek', trek_id=trek.trek_id) }}">
-				                
-				                <button
-				                    class="btn btn-sm btn-outline-primary"
-				                    title="Edit">
-				                    <i class="bi bi-pencil-square"></i>
-				                </button>
-				                
-				                <input type="hidden" name="next" value="{{ url_for('admin.treks') }}">
-				                
-				            </form>
-				            
-				            <form method="POST" action="{{ url_for('admin.delete_trek', trek_id=trek.trek_id) }}">
-
-				                <button
-				                    class="btn btn-sm btn-outline-danger"
-				                    title="Delete">
-				                    <i class="bi bi-trash"></i>
-				                </button>
-				                
-				                <input type="hidden" name="next" value="{{ url_for('admin.treks') }}">
-				                
-				            </form>
-
-		                </div>
-
-		            </td>
+								</button>
+								
+								<input type="hidden" name="next" value="{{ url_for('admin.treks') }}">
+							
+							</form>
+						</div>
+						
+						{% endif %}
+						
+					</td>
 
 		        </tr>
 
